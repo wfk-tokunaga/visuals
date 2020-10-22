@@ -7,24 +7,38 @@ let originX, originY;
 const colors = ['red', 'blue', 'green', 'orange'];
 
 
+
 window.onload = () => {
+
     let canvas = document.getElementById('pattern');
 
     if (canvas.getContext) {
         ctx = canvas.getContext("2d");
-        [width, height] = [canvas.width, canvas.height];
-        unit = height / 20; //this lets us just do like 5*unit
-        sideUnit = unit * Math.sqrt(2) / 2;
-        [originX, originY] = [width / 2, height / 2];
-        ctx.translate(originX, originY); //moves origin :D
+
+        const resizeHandler = () => {
+            const pixelRatio = window.devicePixelRatio;
+            let rect = document.body.getBoundingClientRect();
+            canvas.width = rect.width*pixelRatio;
+            canvas.height = rect.height*pixelRatio;
+            [width, height] = new Array(2).fill(Math.max(canvas.width, canvas.height));
+            unit = height / 40; //this lets us just do like 5*unit
+            sideUnit = unit * Math.sqrt(2) / 2;
+            [originX, originY] = [pixelRatio * rect.width / 2,pixelRatio * rect.height / 2];
+            ctx.translate(originX, originY); //moves origin :D
+        };
+
+        window.addEventListener("resize", resizeHandler);
+
+        resizeHandler();
 
         window.requestAnimationFrame(draw);
 
     } else {
         console.log("Could not display pattern. Please try with a different browser.")
     }
-    // draw();
 }
+
+
 
 
 //Let's make the colors the way I want them to be.
@@ -38,10 +52,13 @@ function combinedDrawing(maxRings, colorVal) {
 
                 let specialVal = (colorVal + ((Math.floor(255/maxRings) * (ringNum))) % 255);
                 let changingColors = [
-                    `rgb(255,255,${specialVal})`,
-                    `rgb(255,${specialVal},255)`,
-                    `rgb(${specialVal},255,255)`,
-                    `rgb(${specialVal},${specialVal},${specialVal})`,
+                    `rgb(200,200,${specialVal})`,
+                    // `rgb(255,255,255)`,
+                    // `rgb(255,${specialVal},255)`,
+                    `rgb(200,${specialVal},200)`,
+                    // `rgb(${specialVal},255,255)`,
+                    `rgb(${specialVal},200,200)`,
+                    `rgb(${specialVal%100 + 150},${specialVal%100 + 50},${specialVal%100 + 25})`,
                 ]
                 
                 //Make the small squares
@@ -105,7 +122,7 @@ let drawHorns = (startX, startY, color) => {
 }
 
 let drawBigSquare = (sX, sY, color) => {
-    console.log(`Drawing Square at [${sX}, ${sY}]`);
+    // console.log(`Drawing Square at [${sX}, ${sY}]`);
     ctx.beginPath();
     ctx.fillStyle = color;
     ctx.fillRect(sX, sY, 2*sideUnit, 2*sideUnit);
@@ -149,11 +166,11 @@ function draw(ms) {
     //Rotates the drawing so the colors change.
     let rotateSpeed = 300;
     let addLayerSpeed = 200;
-    let y = Math.floor(ms / 25);
+    let y = Math.floor(ms / 15);
     let colorVal = y % 255;
     //need to add a cap to y
     // ctx.rotate(rad(y / 8));
-    combinedDrawing(8, colorVal);        
+    combinedDrawing(15, colorVal);        
 
     window.requestAnimationFrame(draw);
 }
